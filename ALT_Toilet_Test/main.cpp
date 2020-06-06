@@ -6,10 +6,16 @@ Thread thread, thread1, thread2, thread3, thread4, thread5;
 
 
 volatile bool StartTest = false;
+volatile int count = 0;
 int flushcounter = 0;
+int SysMode = 0;
 
 
 int wait_len = 4000;
+
+#define RUN_MODE 1
+#define SER_MODE 2
+#define OFF_MODE 3
 
 
 void group1_thread(void)
@@ -127,10 +133,53 @@ void check_StopButton (void)
 
 
 
-void main_action(void)
+void setup(void)
 {
+  switch (SysMode) {
+  case RUN_MODE:
+
+    break;
+
+  case SER_MODE:
+
+    break;
+
+  case OFF_MODE:
+
+    break;
+
+  default:
+
+    break;
+  }
+}
+
+void flush_counter(void)
+{
+  
+
+    /*
+
+    if thread 1 was started
+    if countswitch 1 == high
+    count = count + 1
+    flush number of motor 1 = count
+
+    //check fault
+    //if time > than 5 seconds & count <=4  ....fault state
+    //if time < than 4 & count >= 4 .....fault state
 
 
+    if thread 2 was started
+
+    if thread 3 was started
+
+    if thread 4 was started
+
+    if thread 5 was started
+
+    
+     */
 
 
 }
@@ -149,7 +198,7 @@ int main()
     thread4.start(group4_thread);
     thread5.start(group5_thread);
 
-    thread2.signal_set(0x00);
+    thread.signal_set(0x00);
 }
 
 
