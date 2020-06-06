@@ -7,7 +7,7 @@ InterruptIn startbutton (PA_0); //to start test and can be use as emergency stop
 
 //Relays to control DC MOTOR
 //When relay is HIGH, DC MOTOR Moving, LOW DC MOTOR STOP.
-DigitalOut motor_relay1 (PC_2);
+DigitalOut motor_relay1 (PA_1);
 DigitalOut motor_relay2 (PC_3);
 DigitalOut motor_relay3 (PA_0);
 DigitalOut motor_relay4 (PA_0);

@@ -7,7 +7,7 @@ EventFlags my_event_flags, my_event_thread;
 
 Serial pc(USBTX, USBRX);
 
-volatile bool StartTest = false;
+volatile bool StartTest;
 volatile int count = 0;
 int flushcounter = 0;
 int SysMode = 0;
@@ -34,8 +34,7 @@ void group1_thread(void)
     motor_relay1 = 0;
     motor_relay2 = 0;
     my_event_flags.set(0x1);
-    thread1.terminate();
-    
+    thread1.terminate();  
     }
 
     
@@ -149,14 +148,122 @@ void enabling_tasks_thread(void)
 } 
 
 
+void motor1_pause(void)
+{
+
+
+}
+
+void motor1_resume(void)
+{
+
+
+}
+
+
+void motor1_reset(void)
+{
+
+}
+
+void motor2_pause(void)
+{
+
+
+}
+
+void motor2_resume(void)
+{
+
+
+}
+
+
+void motor2_reset(void)
+{
+
+}
+
+
+void motor3_pause(void)
+{
+
+
+}
+
+void motor3_resume(void)
+{
+
+
+}
+
+
+void motor3_reset(void)
+{
+
+}
+
+
+void motor4_pause(void)
+{
+
+
+}
+
+void motor4_resume(void)
+{
+
+
+}
+
+
+void motor4_reset(void)
+{
+
+}
+
+
+void setup_motor_button(void)
+{
+    motor_button1.mode(PullUp);
+    //motor_button1.attach_asserted(&keyPressed); //if motor1 button is pressed
+    motor_button1.attach_deasserted(&motor1_pause); //if motor1 button is pressed and immediately released 
+    motor_button1.attach_deasserted_held(&motor1_reset); //if motor1 button is released after 5 seconds
+    motor_button1.setSampleFrequency(50000);//duration of button release
+
+
+    motor_button2.mode(PullUp);
+    //motor_button1.attach_asserted(&keyPressed); //if motor1 button is pressed
+    motor_button2.attach_deasserted(&motor2_pause); //if motor2 button is pressed and immediately released 
+    motor_button2.attach_deasserted_held(&motor2_reset); //if motor2 button is released after 5 seconds
+    motor_button2.setSampleFrequency(50000);//duration of button release
+
+    motor_button3.mode(PullUp);
+    //motor_button1.attach_asserted(&keyPressed); //if motor1 button is pressed
+    motor_button3.attach_deasserted(&motor3_pause); //if motor3 button is pressed and immediately released 
+    motor_button3.attach_deasserted_held(&motor3_reset); //if motor3 button is released after 5 seconds
+    motor_button3.setSampleFrequency(50000);//duration of button release
+
+
+    motor_button4.mode(PullUp);
+    //motor_button1.attach_asserted(&keyPressed); //if motor1 button is pressed
+    motor_button4.attach_deasserted(&motor4_pause); //if motor4 button is pressed and immediately released 
+    motor_button4.attach_deasserted_held(&motor4_reset); //if motor4 button is released after 5 seconds
+    motor_button4.setSampleFrequency(50000);//duration of button release
+
+
+}
+
+
 
 void check_StartButton (void)
 {
-    if (startbutton == 0)
+    if (startbutton == 1)
     {
-        StartTest = true;
+       StartTest = true;
+       // pc.printf("button pressed\n");
 
-        group1_thread();   
+       // group1_thread();   
 
     }
 }
@@ -229,8 +336,7 @@ void flush_counter(void)
 // main() runs in its own thread in the OS
 int main()
 {
-    buttons_setup();
-    startbutton.rise(&check_StartButton);
+ 
 
     thread1.start(group1_thread);
     thread2.start(group2_thread);
