@@ -2,8 +2,10 @@
 #include <PinDetect.h>
 #include "pins.h"
 
-Thread thread, thread1, thread2, thread3, thread4, thread5;
+Thread thread, thread1, thread2, thread3, thread4, thread5, enablingthreads;
+EventFlags my_event_flags, my_event_thread;
 
+Serial pc(USBTX, USBRX);
 
 volatile bool StartTest = false;
 volatile int count = 0;
@@ -20,100 +22,137 @@ int wait_len = 4000;
 
 void group1_thread(void)
 {
+    pc.printf("group1\n");
+    while(1)
+    { 
+    pc.printf("relay1&2 on\n");
     motor_relay1 = 1;
     motor_relay2 = 1;
     thread.wait(wait_len);
     //ThisThread::sleep_for(5000);
+    pc.printf("relay1&2 off\n");
     motor_relay1 = 0;
     motor_relay2 = 0;
-
-    thread1.signal_set(0x01);
-
+    my_event_flags.set(0x1);
     thread1.terminate();
+    
+    }
+
     
 }
 
 void group2_thread(void)
 {
-    thread2.signal_wait(0x01);
 
     while(1)
     {
+    pc.printf("group2\n");
+    my_event_flags.wait_any(0x1);
+    pc.printf("relay3&4 on\n");
     motor_relay3 = 1;
     motor_relay4 = 1;
     thread.wait(wait_len);
     //ThisThread::sleep_for(5000);
-    motor_relay3 = 0;
+    pc.printf("relay3&4 off\n");
     motor_relay4 = 0;
+    my_event_flags.set(0x2);
+    thread2.terminate();
     }
 
-    thread2.signal_set(0x02);
-    thread2.terminate();
+    
+ 
     
     
 }
 
 void group3_thread(void)
 {
-    thread3.signal_wait(0x02);
+    pc.printf("group3\n");
 
     while(1)
     {
+    my_event_flags.wait_any(0x2);
+    pc.printf("relay5&6 on\n");
     motor_relay5 = 1;
     motor_relay6 = 1;
     thread.wait(wait_len);
     //ThisThread::sleep_for(5000);
+    pc.printf("relay5&6 off\n");
     motor_relay5 = 0;
     motor_relay6 = 0;
+    my_event_flags.set(0x3);
+    thread3.terminate();
     }
 
-    thread3.signal_wait(0x03);
-    thread3.terminate();
+    
+    
     
 }
 
 void group4_thread(void)
 {
-    thread3.signal_wait(0x03);
+    
 
     while(1)
     {
+    pc.printf("group4\n");
+    my_event_flags.wait_any(0x3);
+    pc.printf("relay7&8 on\n");
     motor_relay7 = 1;
     motor_relay8 = 1;
     thread.wait(wait_len);
     //ThisThread::sleep_for(5000);
+    pc.printf("relay7&8 off\n");
     motor_relay7 = 0;
     motor_relay8 = 0;
-    }
-
-    thread4.signal_wait(0x04);
+    my_event_flags.set(0x4);
     thread4.terminate();
+    }
 }
 
 
 void group5_thread(void)
 {
-    thread5.signal_wait(0x04);
 
     while(1)
     {
+    pc.printf("group5\n");    
+    my_event_flags.wait_any(0x4);
+    pc.printf("relay9&10 on\n");
     motor_relay9 = 1;
     motor_relay10 = 1;
     thread.wait(wait_len);
     //ThisThread::sleep_for(5000);
+    pc.printf("relay9&10 off\n");
     motor_relay9 = 0;
     motor_relay10 = 0;
-    }
-
-    thread1.start(group1_thread);
+    my_event_flags.set(0x0);
+    group1_thread();
     thread5.terminate();
+    }    
 }
+
+void enabling_tasks_thread(void)
+{
+    while(1)
+    {
+        pc.printf("restarting threads\n");
+
+        my_event_flags.wait_any(0x0);
+        thread1.start(group1_thread);
+        thread2.start(group2_thread);
+        thread3.start(group3_thread);
+        thread4.start(group4_thread);
+        thread5.start(group5_thread);
+    }
+    
+} 
 
 
 
 void check_StartButton (void)
 {
-    if (startbutton == 1)
+    if (startbutton == 0)
     {
         StartTest = true;
 
@@ -124,6 +163,7 @@ void check_StartButton (void)
 
 void check_StopButton (void)
 {
+    
    
 
 }
@@ -197,8 +237,8 @@ int main()
     thread3.start(group3_thread);
     thread4.start(group4_thread);
     thread5.start(group5_thread);
+    enablingthreads.start(enabling_tasks_thread);
 
-    thread.signal_set(0x00);
 }
 
 
