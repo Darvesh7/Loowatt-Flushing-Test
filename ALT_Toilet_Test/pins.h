@@ -1,32 +1,32 @@
 #include "mbed.h"
 #include <PinDetect.h>
 
-
-
+//#define startbutton PA_0
 //Relays to control DC MOTOR
 //When relay is HIGH, DC MOTOR Moving, LOW DC MOTOR STOP.
-DigitalOut motor_relay1 (PA_1);
-DigitalOut motor_relay2 (PA_0);
-DigitalOut motor_relay3 (PA_4);
-DigitalOut motor_relay4 (PA_0);
-DigitalOut motor_relay5 (PA_0);
-DigitalOut motor_relay6 (PA_0);
-DigitalOut motor_relay7 (PA_0);
-DigitalOut motor_relay8 (PA_0);
-DigitalOut motor_relay9 (PA_0);
-DigitalOut motor_relay10 (PA_0);
+#define relayM1 PA_13;
+#define relayM2 PA_14;
+#define relayM3 PA_15;
+#define relayM4 PB_7;
+#define relayM5 PC_14;
+#define relayM6 PC_15;
+#define relayM7 PH_0;
+#define relayM8 PH_1;
+#define relayM9 PC_2;
+#define relayM10 PC_3;
 
-//A MICROSWITCH to count flushes, 4 times LOW = 1 whole flush, takes 4 second for 1 whole flush
-InterruptIn countswitch1 (PA_0);
-InterruptIn countswitch2 (PA_0);
-InterruptIn countswitch3 (PA_0);
-InterruptIn countswitch4 (PA_0);
-InterruptIn countswitch5 (PA_0);
-InterruptIn countswitch6 (PA_0);
-InterruptIn countswitch7 (PA_0);
-InterruptIn countswitch8 (PA_0);
-InterruptIn countswitch9 (PA_0);
-InterruptIn countswitch10 (PA_0);
+
+//A MICROSWITCH to count flushes, 4 times LOW = 1 whole flush, takes around 4 second for 1 whole flush
+#define coutswitchM1 PA_10;
+#define coutswitchM2 PB_3;
+#define coutswitchM3 PB_5;
+#define coutswitchM4 PB_10;
+#define coutswitchM5 PA_8;
+#define coutswitchM6 PA_9;
+#define coutswitchM7 PC_7;
+#define coutswitchM8 PB_6;
+#define coutswitchM9 PA_7;
+#define coutswitchM10 PA_6;
 
 
 //Tactile Button to control motor manually is somethin is not working as expected
@@ -36,32 +36,21 @@ InterruptIn countswitch10 (PA_0);
 //ERROR MODE - it just stop the motor from moving and display ERROR on the LCD
 //Press 5 seconds, EEPROM data of this current motor is deleted
 
-PinDetect motor_button1(PB_3);
-PinDetect motor_button2(PB_3);
-PinDetect motor_button3(PB_3);
-PinDetect motor_button4(PB_3);
-PinDetect motor_button5(PB_3);
-PinDetect motor_button6(PB_3);
-PinDetect motor_button7(PB_3);
-PinDetect motor_button8(PB_3);
-PinDetect motor_button9(PB_3);
-PinDetect motor_button10(PB_3);
+#define buttonM1 PC_8;
+#define buttonM2 PC_6;
+#define buttonM3 PC_5;
+#define buttonM4 PA_12;
+#define buttonM5 PA_11;
+#define buttonM6 PB_12;
+#define buttonM7 PB_2;
+#define buttonM8 PB_1;
+#define buttonM9 PB_15;
+#define buttonM10 PC_14;
 
 
 void buttons_setup(void)
 {
     
-    countswitch1.mode(PullUp); 
-    countswitch2.mode(PullUp);
-    countswitch3.mode(PullUp);
-    countswitch4.mode(PullUp);
-    countswitch5.mode(PullUp);
-    countswitch6.mode(PullUp);
-    countswitch7.mode(PullUp);
-    countswitch8.mode(PullUp);
-    countswitch9.mode(PullUp);
-    countswitch10.mode(PullUp);
-
-    wait_ms(100);
+   
 }
 
