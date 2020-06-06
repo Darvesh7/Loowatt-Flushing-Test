@@ -20,9 +20,9 @@ Timeout startbuttonTimeout;
 volatile int counter = 0;
 
 volatile bool StartTest;
-volatile int count1 = 0;
-volatile int count2 = 0;
-volatile int count3 = 0;
+volatile int count1 = 0; //Flush counter for motor 1
+volatile int count2 = 0; //Flush counter for motor 2
+volatile int count3 = 0; //Flush counter for motor 3
 volatile int count4 = 0;
 volatile int count5 = 0;
 volatile int count6 = 0;
@@ -30,18 +30,18 @@ volatile int count7 = 0;
 volatile int count8 = 0;
 volatile int count9 = 0;
 volatile int count10 = 0;
-int flushcounter = 0;
-int SysMode = 0;
+int flushcounter = 0; 
+int SysMode = 0;  //STATE of Motors
 
 
 int wait_len = 4000;
 
-#define RUN_MODE 1
-#define SER_MODE 2
-#define OFF_MODE 3
+#define RUN_MODE 1  //RUN STATE
+#define SER_MODE 2  //SERVICE STATE, BASICALLY PAUSE MODE
+#define OFF_MODE 3  //EEROR STATE
 
 
-void group1_thread(void)
+void group1_thread(void)  //motor1 and motor 2 action
 {
     pc.printf("group1\n");
     while(1)
@@ -49,24 +49,19 @@ void group1_thread(void)
         
     timer1.start();     
     pc.printf("relay1&2 on\n");
-    motor_relay1 = 1;
-    motor_relay2 = 1;
+    motor_relay1 = 1; //motor1 high
+    motor_relay2 = 1; //motor2 high
 
-    //check for faults
-    if(timer1.read_ms()<4000)
-    {
-        led3 = 1;
 
-    }
-    //
 
-    thread.wait(wait_len);
-    timer1.reset(); 
+
+    thread.wait(wait_len);//after 4 seconds
+
     pc.printf("relay1&2 off\n");
-    motor_relay1 = 0;
-    motor_relay2 = 0;
-    my_event_flags.set(0x1);
-    thread1.terminate(); 
+    motor_relay1 = 0; //motor1 low
+    motor_relay2 = 0; //motor2 low
+    my_event_flags.set(0x1);//set flag
+    thread1.terminate(); //terminate this thread
     }
 
     
@@ -78,7 +73,7 @@ void group2_thread(void)
     while(1)
     {
     pc.printf("group2\n");
-    my_event_flags.wait_any(0x1);
+    my_event_flags.wait_any(0x1); //wait for flag to start action
     pc.printf("relay3&4 on\n");
     motor_relay3 = 1;
     motor_relay4 = 1;
@@ -170,7 +165,8 @@ void enabling_tasks_thread(void)
     {
         pc.printf("restarting threads\n");
 
-        my_event_flags.wait_any(0x0);
+        my_event_flags.wait_any(0x0); //After the 10th motor test has been done
+        //restart all the threads again.
         thread1.start(group1_thread);
         thread2.start(group2_thread);
         thread3.start(group3_thread);
