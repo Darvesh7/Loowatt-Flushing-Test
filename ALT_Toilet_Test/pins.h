@@ -3,13 +3,11 @@
 
 
 
-InterruptIn startbutton (PA_0); //to start test and can be use as emergency stop.
-
 //Relays to control DC MOTOR
 //When relay is HIGH, DC MOTOR Moving, LOW DC MOTOR STOP.
 DigitalOut motor_relay1 (PA_1);
-DigitalOut motor_relay2 (PC_3);
-DigitalOut motor_relay3 (PA_0);
+DigitalOut motor_relay2 (PA_0);
+DigitalOut motor_relay3 (PA_4);
 DigitalOut motor_relay4 (PA_0);
 DigitalOut motor_relay5 (PA_0);
 DigitalOut motor_relay6 (PA_0);
@@ -52,7 +50,6 @@ PinDetect motor_button10(PB_3);
 
 void buttons_setup(void)
 {
-    startbutton.mode(PullUp);
     
     countswitch1.mode(PullUp); 
     countswitch2.mode(PullUp);

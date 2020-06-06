@@ -2,13 +2,34 @@
 #include <PinDetect.h>
 #include "pins.h"
 
+
 Thread thread, thread1, thread2, thread3, thread4, thread5, enablingthreads;
 EventFlags my_event_flags, my_event_thread;
+Timer timer1,timer2,timer3,timer4,timer5;
 
 Serial pc(USBTX, USBRX);
+InterruptIn startbutton (PA_0); //to start test and can be use as emergency stop.
+DigitalOut  led2(PA_1);
+DigitalOut  led3(LED3);
+
+
+
+volatile bool startbuttonPressed = false;
+volatile bool startbuttonEnabled = true;
+Timeout startbuttonTimeout;
+volatile int counter = 0;
 
 volatile bool StartTest;
-volatile int count = 0;
+volatile int count1 = 0;
+volatile int count2 = 0;
+volatile int count3 = 0;
+volatile int count4 = 0;
+volatile int count5 = 0;
+volatile int count6 = 0;
+volatile int count7 = 0;
+volatile int count8 = 0;
+volatile int count9 = 0;
+volatile int count10 = 0;
 int flushcounter = 0;
 int SysMode = 0;
 
@@ -24,17 +45,28 @@ void group1_thread(void)
 {
     pc.printf("group1\n");
     while(1)
-    { 
+    {
+        
+    timer1.start();     
     pc.printf("relay1&2 on\n");
     motor_relay1 = 1;
     motor_relay2 = 1;
+
+    //check for faults
+    if(timer1.read_ms()<4000)
+    {
+        led3 = 1;
+
+    }
+    //
+
     thread.wait(wait_len);
-    //ThisThread::sleep_for(5000);
+    timer1.reset(); 
     pc.printf("relay1&2 off\n");
     motor_relay1 = 0;
     motor_relay2 = 0;
     my_event_flags.set(0x1);
-    thread1.terminate();  
+    thread1.terminate(); 
     }
 
     
@@ -53,6 +85,7 @@ void group2_thread(void)
     thread.wait(wait_len);
     //ThisThread::sleep_for(5000);
     pc.printf("relay3&4 off\n");
+    motor_relay3 = 0;
     motor_relay4 = 0;
     my_event_flags.set(0x2);
     thread2.terminate();
@@ -256,24 +289,25 @@ void setup_motor_button(void)
 
 
 
-void check_StartButton (void)
+// ISR (Interrupt Service Routine) to enable button when bouncing is over
+void enableButton1(void)
 {
-    if (startbutton == 1)
+    startbuttonEnabled = true;
+}
+ 
+// ISR (Interrupt Service Rountine) handling button pressed event
+void onStartButtonPressed(void)
+{
+    if (startbuttonEnabled) // Enabled when the button is not bouncing
     {
-       StartTest = true;
-       // pc.printf("button pressed\n");
-
-       // group1_thread();   
-
+        startbuttonEnabled = false; // Disable the button while it's bouncing
+        startbuttonPressed = true;  // To be read in the main loop
+       startbuttonTimeout.attach(callback(enableButton1), 0.3);    // Debounce time 300 ms
+        counter++;      // Increment button's "press event" counter
     }
 }
 
-void check_StopButton (void)
-{
-    
-   
 
-}
 
 
 
@@ -282,6 +316,7 @@ void check_StopButton (void)
 
 void setup(void)
 {
+    
   switch (SysMode) {
   case RUN_MODE:
 
@@ -336,7 +371,8 @@ void flush_counter(void)
 // main() runs in its own thread in the OS
 int main()
 {
- 
+  
+    setup();
 
     thread1.start(group1_thread);
     thread2.start(group2_thread);
@@ -344,6 +380,7 @@ int main()
     thread4.start(group4_thread);
     thread5.start(group5_thread);
     enablingthreads.start(enabling_tasks_thread);
+    
 
 }
 
