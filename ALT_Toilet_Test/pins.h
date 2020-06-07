@@ -10,8 +10,6 @@ const PinName countSwitches[MAX_TEST_MOTORS] = {PA_10, PB_3, PB_5, PB_4, PB_10 ,
 const PinName buttons[MAX_TEST_MOTORS] = {PC_8, PC_6, PC_5, PA_12 , PA_11 , PB_12 , PB_2 , PB_1};
 
 
-
-
 // #define relayM1 PA_13;
 // #define relayM2 PA_14;
 // #define relayM3 PA_15;

@@ -9,16 +9,16 @@
 
 typedef enum
 {
+    STOP,
     RUN,
-    SER,
-    STOP
+    SER
 } motorState_t;
 
 class TestMotor
 {
     public:
 
-    TestMotor(PinName motorRelay, PinName motorCounter, PinName motorPauser);
+    TestMotor(PinName motorRelay, PinName motorCounter, PinName motorPauser, EEPROM* EEPROM_Handle, uint32_t baseEEPROMAddress);
 
     void startMotor(void);
     void stopMotor(void);
@@ -27,23 +27,27 @@ class TestMotor
     void setState(motorState_t state);
 
     uint32_t getCount(void);
+    float getFlushCount(void);
 
-    void readEEPROM(void);
-    void writeEEPROM(void);
-    void clearEEPROM(void);
+    void writeEEPROMData(void);
+    void clearEEPROMData(void);
+    void readEEPROMData(void);
 
     private:
-    uint32_t _rotationCount = 0;
+    int32_t _rotationCount = 0;
+    float _flushCount = 0.0;
+    float _runtimeInMonths = 0.0;
 
     PinName _motorRelay;
     PinName _motorCounter;
     PinName _motorPauser;
-    uint32_t _address;
 
     DigitalOut* _motorRelayOut;
     PinDetect* _pdMotorCounter;
     PinDetect* _PdMotorPauser;
-    EEPROM* _pdMotorData;
+    EEPROM * _EEPROM_Handle;
+
+    uint32_t _baseEEPROMAddress;
   
 
     motorState_t _motorCurrentState;
