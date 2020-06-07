@@ -18,7 +18,7 @@ class TestMotor
 {
     public:
 
-    TestMotor(PinName motorRelay, PinName motorCounter, PinName motorPauser, uint32_t address);
+    TestMotor(PinName motorRelay, PinName motorCounter, PinName motorPauser);
 
     void startMotor(void);
     void stopMotor(void);

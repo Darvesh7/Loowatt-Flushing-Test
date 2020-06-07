@@ -1,18 +1,18 @@
 #include "mbed.h"
 #include "PinDetect.h"
 #include "testMotor.h"
-#include "eeprom.h"
 
 TestMotor::TestMotor(PinName motorRelay, PinName motorCounter, PinName motorPauser) : 
 _motorRelayOut(new DigitalOut (motorRelay)), 
 _pdMotorCounter(new PinDetect (motorCounter)), 
-_PdMotorPauser(new PinDetect (motorPauser)),
-_pdMotorData(new EEPROM (address))
+_PdMotorPauser(new PinDetect (motorPauser))
 {
     _motorRelay = motorRelay;
     _motorCounter = motorCounter;
     _motorPauser = motorPauser;
     _motorCurrentState = STOP;
+
+    _motorRelayOut->write(1);
 
     _pdMotorCounter->mode(PullUp);
     _pdMotorCounter->setAssertValue(0);
@@ -24,20 +24,20 @@ _pdMotorData(new EEPROM (address))
     _PdMotorPauser->attach_deasserted(this, &TestMotor::_motorPauserReleased);
     _PdMotorPauser->attach_asserted_held(this, &TestMotor::_motorPauserHeld);
 
-    _pdMotorCounter->setSampleFrequency(20);
-    _PdMotorPauser->setSampleFrequency(20);
+    _pdMotorCounter->setSampleFrequency(20000);
+    _PdMotorPauser->setSampleFrequency(20000);
 }
 
 void TestMotor::startMotor(void)
 {
     _motorCurrentState = RUN;
-    _motorRelayOut->write(1);
+    _motorRelayOut->write(0);
     
 }
 void TestMotor::stopMotor(void)
 {
     _motorCurrentState = STOP;
-    _motorRelayOut->write(0);
+    _motorRelayOut->write(1);
 }
     
 motorState_t TestMotor::getState(void)
@@ -74,4 +74,3 @@ void TestMotor::_motorPauserHeld(void)
 {
     _motorCurrentState = STOP;
 }
-
