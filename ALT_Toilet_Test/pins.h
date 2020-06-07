@@ -1,13 +1,16 @@
 #include "mbed.h"
-const int MAX_TEST_MOTORS = 2;
+const int MAX_TEST_MOTORS = 8;
 
 //#define startbutton PA_0
 //Relays to control DC MOTOR
 //When relay is HIGH, DC MOTOR Moving, LOW DC MOTOR STOP.
 
-const PinName relays[MAX_TEST_MOTORS] = {LED1, PA_15};
-const PinName countSwitches[MAX_TEST_MOTORS] = {BUTTON1, PA_1};
-const PinName buttons[MAX_TEST_MOTORS] = {PC_8, PC_6};
+const PinName relays[MAX_TEST_MOTORS] = {PA_13, PA_14, PA_15, PB_7, PC_14, PC_15, PH_0, PH_1};
+const PinName countSwitches[MAX_TEST_MOTORS] = {PA_10, PB_3, PB_5, PB_10 , PA_8 , PA_9, PC_7, PB_6};
+const PinName buttons[MAX_TEST_MOTORS] = {PC_8, PC_6, PC_5, PA_12 , PA_11 , PB_12 , PB_2 , PB_1};
+const uint32_t eeprom[MAX_TEST_MOTORS] = {};
+
+
 
 // #define relayM1 PA_13;
 // #define relayM2 PA_14;

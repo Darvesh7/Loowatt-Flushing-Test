@@ -10,13 +10,15 @@ int currentMotor = 0;
 
 Serial pc(USBTX, USBRX);
 
+
+
 void setup(void)
 {
     pc.baud(115200);
     pc.printf("Starting...\r\n");
 
     for (int i = 0; i < MAX_TEST_MOTORS; i++)
-        testMotors[i] = new TestMotor(relays[i], countSwitches[i], buttons[i]);//add eeprom addr
+        testMotors[i] = new TestMotor(relays[i], countSwitches[i], buttons[i]), ;
 }
 
 void stopMotor(void)
@@ -34,7 +36,7 @@ void stopMotor(void)
 
 void serviceMotor(void)
 {
-    pc.printf("%d\r\n", testMotors[currentMotor]->getCount());//lcd
+    pc.printf("%d\r\n", testMotors[currentMotor]->getCount());
 }
 
 int main()
@@ -48,7 +50,7 @@ int main()
 
     while(true)
     {
-
+          
     }
 }
 

@@ -1,11 +1,13 @@
 #include "mbed.h"
 #include "PinDetect.h"
 #include "testMotor.h"
+#include "eeprom.h"
 
 TestMotor::TestMotor(PinName motorRelay, PinName motorCounter, PinName motorPauser) : 
 _motorRelayOut(new DigitalOut (motorRelay)), 
 _pdMotorCounter(new PinDetect (motorCounter)), 
-_PdMotorPauser(new PinDetect (motorPauser))
+_PdMotorPauser(new PinDetect (motorPauser)),
+_pdMotorData(new EEPROM (address))
 {
     _motorRelay = motorRelay;
     _motorCounter = motorCounter;
