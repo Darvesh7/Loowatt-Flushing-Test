@@ -14,11 +14,13 @@
 #define SER_MODE 2
 #define OFF_MODE 3
 
+InterruptIn StartButton(BUTTON1);
+
 I2C i2c_lcd(SDA, SCL);
 //TextLCD_I2C lcd(&i2c_lcd, LCD_ADDR, TextLCD::LCD20x4);
 
 TestMotor* testMotors[MAX_TEST_MOTORS];
-EventQueue timedEvents;
+EventQueue timedEvents, StartQueue;
 
 int oddMotor = 0;
 int evenMotor = 1;
@@ -124,6 +126,11 @@ void serviceMotor(void)
     pc.printf("%.2f\r\n", testMotors[evenMotor]->getFlushCount());//lcd
 }
 
+void startTest(void) {
+
+timedEvents.dispatch();
+}
+
 int main()
 {
     setup();
@@ -133,7 +140,15 @@ int main()
     timedEvents.call_every(500, serviceMotor);
     testMotors[oddMotor]->startMotor();
     testMotors[evenMotor]->startMotor();
-    timedEvents.dispatch();
+
+    Thread eventThread;
+    eventThread.start(callback(&StartQueue, &EventQueue::dispatch_forever));
+
+    StartButton.fall(StartQueue.event(&startTest));
+ 
+    wait(osWaitForever);    
+    
+    
 
     while(true)
     {
