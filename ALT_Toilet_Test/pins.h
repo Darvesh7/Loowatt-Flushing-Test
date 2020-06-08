@@ -10,7 +10,7 @@ PinName relays[MAX_TEST_MOTORS] = {PA_13, PA_14, PA_15, PB_7, PA_0, PH_1, PC_2, 
 PinName countSwitches[MAX_TEST_MOTORS] = {PA_10, PB_3, PB_5, PB_4, PB_10 , PA_8 , PA_9, PC_7};
 PinName buttons[MAX_TEST_MOTORS] = {PC_8, PC_6, PC_5, PA_12 , PA_11 , PB_12 , PB_2 , PB_1};
 
-void setupLCD(void)  //column & row
+void setupLCD(void)  //column & row 
 {
     lcd->setBacklight(TextLCD::LightOn);
     lcd->setAddress(0, 0);  

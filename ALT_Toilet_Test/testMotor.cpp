@@ -35,7 +35,9 @@ _PdMotorPauser(new PinDetect (motorPauser))
     _PdMotorPauser->setAssertValue(0);
     _PdMotorPauser->attach_asserted(this, &TestMotor::_motorPauserPressed);
     _PdMotorPauser->attach_deasserted(this, &TestMotor::_motorPauserReleased);
-    _PdMotorPauser->attach_deasserted_held(this, &TestMotor::_motorPauserHeld);
+    _PdMotorPauser->attach_deasserted_held(this, &TestMotor::_motorPauserHeld); //if button is pressed for 2 seconds and released
+
+    _PdMotorPauser->setSamplesTillHeld( 200 );
 
     _pdMotorCounter->setSampleFrequency(20000);
     _PdMotorPauser->setSampleFrequency(20000);
