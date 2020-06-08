@@ -21,32 +21,29 @@ class TestMotor
 
     TestMotor(PinName motorRelay, PinName motorCounter, PinName motorPauser, EEPROM* EEPROM_Handle, uint32_t baseEEPROMAddress, TextLCD_I2C * TextLCD_I2C_Handle, uint32_t baseRowAddress, uint32_t baseColumnAddress);
 
-
     void startMotor(void);
-    void stopMotor(void);
+    uint32_t stopMotor(void); //return rotations
 
-    
     motorState_t getState(void);
     void setState(motorState_t state);
 
     uint32_t getCount(void);
     float getFlushCount(void);
 
-
     void writeEEPROMData(void);
     void clearEEPROMData(void);
     void readEEPROMData(void);
 
-    void setAddressLCD(void);
     void printLCDdata(void);
 
-    void checkFault(void);
+    void setFaultState(bool faultyState);
+    bool getFaultState(void);
 
     private:
-    int32_t _rotationCount = 0;
-    float _flushCount = 0.0;
-    float _runtimeInMonths = 0.0;
-    int _faultCount = 0;
+    int32_t _rotationCount;
+    int32_t _previousRotationCount;
+    float _flushCount;
+    int8_t _runtimeInMonths;
 
     PinName _motorRelay;
     PinName _motorCounter;
@@ -58,11 +55,12 @@ class TestMotor
     EEPROM * _EEPROM_Handle;
     TextLCD_I2C* _TextLCD_I2C_Handle;
 
+    bool _faulty;
+
     uint32_t _baseEEPROMAddress;
 
     uint32_t _baseRowAddress;
     uint32_t _baseColumnAddress;
-  
 
     motorState_t _motorCurrentState;
     // pin detect used callbacks

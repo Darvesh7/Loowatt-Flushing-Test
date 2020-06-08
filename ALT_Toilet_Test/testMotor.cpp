@@ -21,8 +21,11 @@ _PdMotorPauser(new PinDetect (motorPauser))
     _baseColumnAddress = baseColumnAddress;
     _baseRowAddress = baseRowAddress;
 
-    _motorCurrentState = STOP;
+    _motorCurrentState = SER;
     _rotationCount = 0;
+    _flushCount = 0;
+    _runtimeInMonths = 0;
+    _previousRotationCount = 0;
 
     _motorRelayOut->write(1);
 
@@ -51,52 +54,33 @@ void TestMotor::readEEPROMData(void)
     _motorCurrentState = (motorState_t) moderead;
 
     _EEPROM_Handle->read(_baseEEPROMAddress + 1, (int32_t &)_rotationCount);
-}
-
-
-void TestMotor::setAddressLCD(void)
-{
-    _TextLCD_I2C_Handle ->setAddress(_baseRowAddress, _baseColumnAddress);
-
-    _TextLCD_I2C_Handle ->setAddress(_baseRowAddress + 1, _baseColumnAddress + 3);
-
-
+     _previousRotationCount = _rotationCount;
 }
 
 void TestMotor::printLCDdata(void)
 {
-    _TextLCD_I2C_Handle->setBacklight(TextLCD::LightOn);
-    _TextLCD_I2C_Handle ->printf("12");
-        
+    _TextLCD_I2C_Handle ->setAddress(_baseRowAddress, _baseColumnAddress);
+    _TextLCD_I2C_Handle ->printf("%3d%c", (int8_t)_rotationCount, getFaultState()? '*': ' ');
 }
-
-void TestMotor::checkFault(void)
-{
-    Fault_timer.start();
-    if(Fault_timer.read_ms() >= 4000)
-    {
-        //Write Fault procedure here
-        /* 
-        if(condition){statements
-        }
-        */
-
-     Fault_timer.reset();
-    }
-    
-}
-
 
 void TestMotor::startMotor(void)
 {
-    _motorCurrentState = RUN;
-    _motorRelayOut->write(0);
+    if (_motorCurrentState == SER)
+    {
+        _motorCurrentState = RUN;
+        _motorRelayOut->write(0);
+    }
+     _previousRotationCount = _rotationCount;
     
 }
-void TestMotor::stopMotor(void)
+uint32_t TestMotor::stopMotor(void)
 {
-    _motorCurrentState = STOP;
-    _motorRelayOut->write(1);
+    if (_motorCurrentState == RUN)
+    {
+        _motorCurrentState = SER;
+        _motorRelayOut->write(1);
+    }
+    return _rotationCount - _previousRotationCount;
 }
     
 motorState_t TestMotor::getState(void)
@@ -127,6 +111,20 @@ void TestMotor::clearEEPROMData(void)
     _EEPROM_Handle->write(_baseEEPROMAddress + 1, (int32_t)0);
 }
 
+void TestMotor::setFaultState(bool faultyState)
+{
+    _faulty = faultyState;
+    if(_faulty)
+    {
+        _motorCurrentState = STOP;
+    }
+}
+
+bool TestMotor::getFaultState(void)
+{
+    return _faulty;
+}
+
 void TestMotor::_motorCounterPressed (void)
 {
     _rotationCount = _rotationCount + 1;
@@ -149,8 +147,6 @@ void TestMotor::_motorPauserReleased(void)
 
 void TestMotor::_motorPauserHeld(void)
 {
-    _motorCurrentState = STOP;
-    _flushCount = 0;
-
-    writeEEPROMData();
+    _motorCurrentState = SER;
+    _rotationCount = 0;
 }

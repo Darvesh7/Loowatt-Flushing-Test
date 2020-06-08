@@ -44,7 +44,7 @@ void setup(void)
     int x = 0;
 
     for (int i = 0; i < MAX_TEST_MOTORS; i++)                                                           //Column         //Row in inverted
-    testMotors[i] = new TestMotor(relays[i], countSwitches[i], buttons[i], ep, (uint32_t)i*5 + 1, lcd, (uint32_t)i+y, (uint32_t)i+x-3);//add eeprom addr
+    testMotors[i] = new TestMotor(relays[i], countSwitches[i], buttons[i], ep, (uint32_t)i*5 + 1, lcd, lcdBaseCol[i], lcdBaseRow[i]);//add eeprom addr
 
     uint8_t initep = 0xFF;
     uint8_t testdata = 0xFF; 
@@ -71,7 +71,6 @@ void setup(void)
         for (int i = 0; i < MAX_TEST_MOTORS; i++)
         {
             testMotors[i]->readEEPROMData(); 
-            testMotors[i]->setAddressLCD();
             testMotors[i]->printLCDdata(); 
         }
     } 
@@ -80,11 +79,28 @@ void setup(void)
 
 void stopMotor(void)
 {
-    pc.printf("Stopping motor %d ", oddMotor);
-    pc.printf("Stopping motor %d ", evenMotor);
-    testMotors[oddMotor]->stopMotor();
-    testMotors[evenMotor]->stopMotor();
+    uint32_t rotationsMadeOddMotor = 0;
+    uint32_t rotationsMadeEvenMotor = 0;
 
+    bool FaultOddMotor = false;
+    bool FaultEvenMotor = false;
+
+    rotationsMadeOddMotor = testMotors[oddMotor]->stopMotor();
+    rotationsMadeEvenMotor = testMotors[evenMotor]->stopMotor();
+
+    FaultOddMotor = rotationsMadeOddMotor < 4;
+    FaultEvenMotor = rotationsMadeEvenMotor < 4;
+
+    testMotors[oddMotor]->setFaultState(FaultOddMotor);
+    testMotors[evenMotor]->setFaultState(FaultEvenMotor);
+
+    pc.printf("Stop motor %d %s ", oddMotor, testMotors[oddMotor]->getFaultState()? " Faulty ": " OK ");
+    pc.printf("Stop motor %d %s \r\n", evenMotor, testMotors[evenMotor]->getFaultState()? " Faulty ": " OK ");
+
+
+    testMotors[oddMotor]->printLCDdata(); 
+    testMotors[evenMotor]->printLCDdata(); 
+           
     oddMotor = oddMotor+2;
     evenMotor = evenMotor+2;
     if(oddMotor == MAX_TEST_MOTORS)
@@ -92,8 +108,8 @@ void stopMotor(void)
         oddMotor = 0;
         evenMotor = 1;
     }
-    pc.printf("and starting motor %d ", oddMotor);
-    pc.printf("and starting motor %d\r\n", evenMotor);
+    pc.printf("Starting motor %d ", oddMotor);
+    pc.printf("Starting motor %d\r\n", evenMotor);
 
     testMotors[oddMotor]->writeEEPROMData();
     testMotors[evenMotor]->writeEEPROMData();
@@ -111,7 +127,8 @@ void serviceMotor(void)
 int main()
 {
     setup();
-    setupLCD();
+    lcd->setBacklight(TextLCD::LightOn);
+    //setupLCD();
     timedEvents.call_every(4000, stopMotor);
     timedEvents.call_every(500, serviceMotor);
     testMotors[oddMotor]->startMotor();
