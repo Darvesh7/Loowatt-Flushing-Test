@@ -2,8 +2,11 @@
 #include "PinDetect.h"
 #include "testMotor.h"
 #include "eeprom.h"
+#include "TextLCD.h"
 
-TestMotor::TestMotor(PinName motorRelay, PinName motorCounter, PinName motorPauser, EEPROM* EEPROM_Handle, uint32_t baseEEPROMAddress): 
+Timer Fault_timer;
+
+TestMotor::TestMotor(PinName motorRelay, PinName motorCounter, PinName motorPauser, EEPROM* EEPROM_Handle, uint32_t baseEEPROMAddress, TextLCD_I2C * TextLCD_I2C_Handle, uint32_t baseRowAddress, uint32_t baseColumnAddress): 
 _motorRelayOut(new DigitalOut (motorRelay)), 
 _pdMotorCounter(new PinDetect (motorCounter)), 
 _PdMotorPauser(new PinDetect (motorPauser))
@@ -13,6 +16,10 @@ _PdMotorPauser(new PinDetect (motorPauser))
     _motorPauser = motorPauser;
     _EEPROM_Handle = EEPROM_Handle;
     _baseEEPROMAddress = baseEEPROMAddress;
+
+    _TextLCD_I2C_Handle = TextLCD_I2C_Handle;
+    _baseColumnAddress = baseColumnAddress;
+    _baseRowAddress = baseRowAddress;
 
     _motorCurrentState = STOP;
     _rotationCount = 0;
@@ -43,6 +50,40 @@ void TestMotor::readEEPROMData(void)
 
     _EEPROM_Handle->read(_baseEEPROMAddress + 1, (int32_t &)_rotationCount);
 }
+
+
+void TestMotor::setAddressLCD(void)
+{
+    _TextLCD_I2C_Handle ->setAddress(_baseRowAddress, _baseColumnAddress);
+
+    _TextLCD_I2C_Handle ->setAddress(_baseRowAddress + 1, _baseColumnAddress + 3);
+
+
+}
+
+void TestMotor::printLCDdata(void)
+{
+    _TextLCD_I2C_Handle->setBacklight(TextLCD::LightOn);
+    _TextLCD_I2C_Handle ->printf("12");
+        
+}
+
+void TestMotor::checkFault(void)
+{
+    Fault_timer.start();
+    if(Fault_timer.read_ms() >= 4000)
+    {
+        //Write Fault procedure here
+        /* 
+        if(condition){statements
+        }
+        */
+
+     Fault_timer.reset();
+    }
+    
+}
+
 
 void TestMotor::startMotor(void)
 {

@@ -1,54 +1,39 @@
 #include "mbed.h"
+#include "TextLCD.h"
+
+
+TextLCD_I2C* lcd;
+
 const int MAX_TEST_MOTORS = 8;
 
-//#define startbutton PA_0
-//Relays to control DC MOTOR
-//When relay is HIGH, DC MOTOR Moving, LOW DC MOTOR STOP.
+PinName relays[MAX_TEST_MOTORS] = {PA_13, PA_14, PA_15, PB_7, PA_0, PH_1, PC_2, PC_3};
+PinName countSwitches[MAX_TEST_MOTORS] = {PA_10, PB_3, PB_5, PB_4, PB_10 , PA_8 , PA_9, PC_7};
+PinName buttons[MAX_TEST_MOTORS] = {PC_8, PC_6, PC_5, PA_12 , PA_11 , PB_12 , PB_2 , PB_1};
 
-const PinName relays[MAX_TEST_MOTORS] = {PA_13, PA_14, PA_15, PB_7, PA_0, PH_1, PC_2, PC_3};
-const PinName countSwitches[MAX_TEST_MOTORS] = {PA_10, PB_3, PB_5, PB_4, PB_10 , PA_8 , PA_9, PC_7};
-const PinName buttons[MAX_TEST_MOTORS] = {PC_8, PC_6, PC_5, PA_12 , PA_11 , PB_12 , PB_2 , PB_1};
+void setupLCD(void)  //column & row
+{
+    lcd->setBacklight(TextLCD::LightOn);
+    lcd->setAddress(0, 0);  
+    lcd->printf("1.");
+    lcd->setAddress(0, 1);  
+    lcd->printf("2.");
+    lcd->setAddress(0, 2);  
+    lcd->printf("3.");
+    lcd->setAddress(0, 3);  
+    lcd->printf("4.");
 
+    lcd->setAddress(7, 0);  
+    lcd->printf("5.");
+    lcd->setAddress(7, 1);  
+    lcd->printf("6.");
+    lcd->setAddress(7, 2);  
+    lcd->printf("7.");
+    lcd->setAddress(7, 3);  
+    lcd->printf("8.");
 
-// #define relayM1 PA_13;
-// #define relayM2 PA_14;
-// #define relayM3 PA_15;
-// #define relayM4 PB_7;
-// #define relayM5 PC_14;
-// #define relayM6 PC_15;
-// #define relayM7 PH_0;
-// #define relayM8 PH_1;
-// #define relayM9 PC_2;
-// #define relayM10 PC_3;
+    lcd->setAddress(14, 0);  
+    lcd->printf("9.");
+    lcd->setAddress(14, 1);  
+    lcd->printf("10.");
 
-
-//A MICROSWITCH to count flushes, 4 times LOW = 1 whole flush, takes around 4 second for 1 whole flush
-// #define coutswitchM1 PA_10;
-// #define coutswitchM2 PB_3;
-// #define coutswitchM3 PB_5;
-// #define coutswitchM4 PB_10;
-// #define coutswitchM5 PA_8;
-// #define coutswitchM6 PA_9;
-// #define coutswitchM7 PC_7;
-// #define coutswitchM8 PB_6;
-// #define coutswitchM9 PA_7;
-// #define coutswitchM10 PA_6;
-
-
-//Tactile Button to control motor manually is somethin is not working as expected
-//One press motor in STOP MODE
-//Two press motor in RUN MODE
-//Press 3 seconds, MOTOR changes back to RUN MODE from ERROR MODE
-//ERROR MODE - it just stop the motor from moving and display ERROR on the LCD
-//Press 5 seconds, EEPROM data of this current motor is deleted
-
-// #define buttonM1 PC_8;
-// #define buttonM2 PC_6;
-// #define buttonM3 PC_5;
-// #define buttonM4 PA_12;
-// #define buttonM5 PA_11;
-// #define buttonM6 PB_12;
-// #define buttonM7 PB_2;
-// #define buttonM8 PB_1;
-// #define buttonM9 PB_15;
-// #define buttonM10 PC_14;
+}
