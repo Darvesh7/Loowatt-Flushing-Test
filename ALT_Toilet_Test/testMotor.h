@@ -29,6 +29,7 @@ class TestMotor
 
     uint32_t getCount(void);
     float getFlushCount(void);
+    float getMonthCount(void);
 
     void writeEEPROMData(void);
     void clearEEPROMData(void);
@@ -43,7 +44,7 @@ class TestMotor
     int32_t _rotationCount;
     int32_t _previousRotationCount;
     float _flushCount;
-    int8_t _runtimeInMonths;
+    float _runtimeInMonths;
 
     PinName _motorRelay;
     PinName _motorCounter;

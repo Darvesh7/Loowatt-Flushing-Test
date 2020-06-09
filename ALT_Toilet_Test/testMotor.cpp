@@ -60,7 +60,7 @@ void TestMotor::readEEPROMData(void)
 void TestMotor::printLCDdata(void)
 {
     _TextLCD_I2C_Handle ->setAddress(_baseRowAddress, _baseColumnAddress);
-    _TextLCD_I2C_Handle ->printf("%3d%c", (int8_t)_rotationCount, getFaultState()? '*': ' ');
+    _TextLCD_I2C_Handle ->printf("%3d%c", (int8_t)_runtimeInMonths, getFaultState()? '*': ' ');
 }
 
 void TestMotor::startMotor(void)
@@ -95,8 +95,15 @@ uint32_t TestMotor::getCount(void)
 
 float TestMotor::getFlushCount(void)
 {
-    _flushCount = ((float)_rotationCount) / 4.0;
+    _flushCount = ((float)_rotationCount) / 8.0;
     return _flushCount;
+}
+
+float TestMotor::getMonthCount(void)
+{
+    _runtimeInMonths = ((float)_rotationCount)/ 4.0; 
+    return _runtimeInMonths;
+
 }
 
 void TestMotor::writeEEPROMData(void)
@@ -148,5 +155,7 @@ void TestMotor::_motorPauserReleased(void)
 void TestMotor::_motorPauserHeld(void)
 {
     _motorCurrentState = SER;
-    _rotationCount = 0;
+    _rotationCount = 0; //Delete eeprom of current motor
+    //_rotationCount = _previousRotationCount; //Just pause the motor
+
 }

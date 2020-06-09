@@ -15,12 +15,13 @@
 #define OFF_MODE 3
 
 InterruptIn StartButton(BUTTON1);
+InterruptIn PauseButton(PA_1);
 
 I2C i2c_lcd(SDA, SCL);
 //TextLCD_I2C lcd(&i2c_lcd, LCD_ADDR, TextLCD::LCD20x4);
 
 TestMotor* testMotors[MAX_TEST_MOTORS];
-EventQueue timedEvents, StartQueue;
+EventQueue timedEvents, StartQueue, PauseQueue;
 
 int oddMotor = 0;
 int evenMotor = 1;
@@ -32,6 +33,13 @@ EEPROM* ep;
 Serial pc(USBTX, USBRX);
 
 Thread EEROR;
+
+volatile bool ispressed = false;
+void pressed(){ispressed = !ispressed;}
+ 
+void handler(int c) {
+    if(ispressed == true){ printf("Param: %d\r\n", c); }
+}
 
 
 void setup(void)
@@ -122,33 +130,33 @@ void stopMotor(void)
 
 void serviceMotor(void)
 {
-    pc.printf("%.2f\r\n", testMotors[oddMotor]->getFlushCount());//lcd
-    pc.printf("%.2f\r\n", testMotors[evenMotor]->getFlushCount());//lcd
+    pc.printf("%.2f\r\n", testMotors[oddMotor]->getMonthCount());//lcd
+    pc.printf("%.2f\r\n", testMotors[evenMotor]->getMonthCount());//lcd
 }
 
 void startTest(void) {
 
-timedEvents.dispatch();
+    timedEvents.call_every(4000, stopMotor);
+    timedEvents.call_every(500, serviceMotor);
+    testMotors[oddMotor]->startMotor();
+    testMotors[evenMotor]->startMotor();
+
+    timedEvents.dispatch();
+
 }
+
 
 int main()
 {
     setup();
     lcd->setBacklight(TextLCD::LightOn);
     //setupLCD();
-    timedEvents.call_every(4000, stopMotor);
-    timedEvents.call_every(500, serviceMotor);
-    testMotors[oddMotor]->startMotor();
-    testMotors[evenMotor]->startMotor();
 
-    Thread eventThread;
+
+    Thread eventThread, t;
     eventThread.start(callback(&StartQueue, &EventQueue::dispatch_forever));
-
     StartButton.fall(StartQueue.event(&startTest));
  
-    wait(osWaitForever);    
-    
-    
 
     while(true)
     {
