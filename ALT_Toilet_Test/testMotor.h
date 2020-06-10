@@ -43,6 +43,8 @@ class TestMotor
     private:
     int32_t _rotationCount;
     int32_t _previousRotationCount;
+    int8_t _motorCheckCount;
+
     float _flushCount;
     float _runtimeInMonths;
 

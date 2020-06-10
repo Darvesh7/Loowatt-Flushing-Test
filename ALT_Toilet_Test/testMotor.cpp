@@ -67,12 +67,13 @@ void TestMotor::startMotor(void)
 {
     if (_motorCurrentState == SER)
     {
+        _motorCheckCount = 0;
         _motorCurrentState = RUN;
         _motorRelayOut->write(0);
     }
      _previousRotationCount = _rotationCount;
-    
 }
+
 uint32_t TestMotor::stopMotor(void)
 {
     if (_motorCurrentState == RUN)
@@ -90,6 +91,7 @@ motorState_t TestMotor::getState(void)
 
 uint32_t TestMotor::getCount(void)
 {
+
     return _rotationCount;
 }
 
@@ -101,7 +103,7 @@ float TestMotor::getFlushCount(void)
 
 float TestMotor::getMonthCount(void)
 {
-    _runtimeInMonths = ((float)_rotationCount)/ 4.0; 
+    _runtimeInMonths = ((float)_rotationCount)/ 4.0; //Actual number is 1456
     return _runtimeInMonths;
 
 }
@@ -135,6 +137,14 @@ bool TestMotor::getFaultState(void)
 void TestMotor::_motorCounterPressed (void)
 {
     _rotationCount = _rotationCount + 1;
+    _motorCheckCount = _motorCheckCount + 1;
+    if(_motorCheckCount == 4)
+    {
+        _motorCheckCount = 0;
+        _motorCurrentState = SER;
+        _motorRelayOut->write(1);
+        _previousRotationCount = _rotationCount;
+    }
 }
     
 void TestMotor::_motorCounterReleased (void)
@@ -157,5 +167,4 @@ void TestMotor::_motorPauserHeld(void)
     _motorCurrentState = SER;
     _rotationCount = 0; //Delete eeprom of current motor
     //_rotationCount = _previousRotationCount; //Just pause the motor
-
 }
