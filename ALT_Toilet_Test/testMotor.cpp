@@ -137,13 +137,13 @@ bool TestMotor::getFaultState(void)
 void TestMotor::_motorCounterPressed (void)
 {
     _rotationCount = _rotationCount + 1;
+    
     _motorCheckCount = _motorCheckCount + 1;
     if(_motorCheckCount == 4)
     {
         _motorCheckCount = 0;
         _motorCurrentState = SER;
         _motorRelayOut->write(1);
-        _previousRotationCount = _rotationCount;
     }
 }
     

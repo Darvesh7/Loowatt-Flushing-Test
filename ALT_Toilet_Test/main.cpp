@@ -59,7 +59,7 @@ void setup(void)
     pc.printf("%d", ep->getError());
     pc.printf("initep %X\n", initep);
     
-    if (initep == 0x55) // if address 0 is empty, it is new eeprom
+    if (initep != 0x55) // if address 0 is empty, it is new eeprom
     {
         ep->write((uint32_t)0, 0x55); //if eeprom is new, write 1 to address 0.
         ep->read((uint32_t)0, (int8_t &)testdata);
@@ -127,11 +127,12 @@ void serviceMotor(void)
 {
     pc.printf("%.2f\r\n", testMotors[oddMotor]->getMonthCount());//lcd
     pc.printf("%.2f\r\n", testMotors[evenMotor]->getMonthCount());//lcd
+    
 }
 
 void startTest(void) {
 
-    timedEvents.call_every(6000, CheckMotor); //this 4 seconds is variable.
+    timedEvents.call_every(4000, CheckMotor); //this 4 seconds is variable.
     timedEvents.call_every(500, serviceMotor);
     testMotors[oddMotor]->startMotor();
     testMotors[evenMotor]->startMotor();
