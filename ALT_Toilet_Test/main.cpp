@@ -15,7 +15,6 @@
 #define OFF_MODE 3
 
 InterruptIn StartButton(BUTTON1);
-InterruptIn PauseButton(PA_1);
 
 I2C i2c_lcd(SDA, SCL);
 //TextLCD_I2C lcd(&i2c_lcd, LCD_ADDR, TextLCD::LCD20x4);
@@ -132,7 +131,7 @@ void serviceMotor(void)
 
 void startTest(void) {
 
-    timedEvents.call_every(4000, CheckMotor); //this 4 seconds is variable.
+    timedEvents.call_every(3700, CheckMotor); //this 4 seconds is variable.
     timedEvents.call_every(500, serviceMotor);
     testMotors[oddMotor]->startMotor();
     testMotors[evenMotor]->startMotor();

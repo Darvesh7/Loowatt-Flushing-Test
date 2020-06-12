@@ -103,7 +103,7 @@ float TestMotor::getFlushCount(void)
 
 float TestMotor::getMonthCount(void)
 {
-    _runtimeInMonths = ((float)_rotationCount)/ 4.0; //Actual number is 1456
+    _runtimeInMonths = ((float)_rotationCount)/ 1456.0; //Actual number is 1456
     return _runtimeInMonths;
 
 }
