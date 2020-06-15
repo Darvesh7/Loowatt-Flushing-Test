@@ -38,12 +38,16 @@ _PdMotorPauser(new PinDetect (motorPauser))
     _PdMotorPauser->setAssertValue(0);
     _PdMotorPauser->attach_asserted(this, &TestMotor::_motorPauserPressed);
     _PdMotorPauser->attach_deasserted(this, &TestMotor::_motorPauserReleased);
-    _PdMotorPauser->attach_deasserted_held(this, &TestMotor::_motorPauserHeld); //if button is pressed for 2 seconds and released
+    _PdMotorPauser->attach_asserted_held(this, &TestMotor::_motorPauserHeld); //if button is pressed for 2 seconds and released
 
-    _PdMotorPauser->setSamplesTillHeld( 200 );
+    _PdMotorPauser->setSamplesTillHeld( 100 );
 
     _pdMotorCounter->setSampleFrequency(20000);
-    _PdMotorPauser->setSampleFrequency(20000);
+    _PdMotorPauser->setSampleFrequency();
+
+    
+
+    //20000
 }
 
 void TestMotor::readEEPROMData(void)
@@ -103,7 +107,7 @@ float TestMotor::getFlushCount(void)
 
 float TestMotor::getMonthCount(void)
 {
-    _runtimeInMonths = ((float)_rotationCount)/ 1456.0; //Actual number is 1456
+    _runtimeInMonths = ((float)_rotationCount)/ 4.0; //Actual number is 1456
     return _runtimeInMonths;
 
 }
@@ -154,7 +158,9 @@ void TestMotor::_motorCounterReleased (void)
 
 void TestMotor::_motorPauserPressed(void)
 {
-    _motorCurrentState = SER;
+
+    _motorCurrentState = STOP;
+  
 }
     
 void TestMotor::_motorPauserReleased(void)
@@ -165,6 +171,6 @@ void TestMotor::_motorPauserReleased(void)
 void TestMotor::_motorPauserHeld(void)
 {
     _motorCurrentState = SER;
-    _rotationCount = 0; //Delete eeprom of current motor
-    //_rotationCount = _previousRotationCount; //Just pause the motor
+    //_rotationCount = 0; //Delete eeprom of current motor
+    _rotationCount = _previousRotationCount; //Just pause the motor
 }

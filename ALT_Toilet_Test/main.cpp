@@ -78,7 +78,8 @@ void setup(void)
             testMotors[i]->readEEPROMData(); 
             testMotors[i]->printLCDdata(); 
         }
-    } 
+    }
+
 
 }
 
@@ -93,8 +94,10 @@ void CheckMotor(void)
     rotationsMadeOddMotor = testMotors[oddMotor]->stopMotor();
     rotationsMadeEvenMotor = testMotors[evenMotor]->stopMotor();
 
-    FaultOddMotor = rotationsMadeOddMotor < 4;
-    FaultEvenMotor = rotationsMadeEvenMotor < 4;
+    FaultOddMotor = rotationsMadeOddMotor < 4 || rotationsMadeOddMotor > 5;
+    FaultEvenMotor = rotationsMadeEvenMotor < 4 || rotationsMadeEvenMotor > 5; 
+
+ 
 
     testMotors[oddMotor]->setFaultState(FaultOddMotor);
     testMotors[evenMotor]->setFaultState(FaultEvenMotor);
@@ -127,6 +130,7 @@ void serviceMotor(void)
     pc.printf("%.2f\r\n", testMotors[oddMotor]->getMonthCount());//lcd
     pc.printf("%.2f\r\n", testMotors[evenMotor]->getMonthCount());//lcd
     
+    
 }
 
 void startTest(void) {
@@ -143,6 +147,7 @@ int main()
 {
     setup();
     lcd->setBacklight(TextLCD::LightOn);
+  
     //setupLCD();
     Thread eventThread;
     eventThread.start(callback(&StartQueue, &EventQueue::dispatch_forever));
@@ -151,6 +156,7 @@ int main()
 
     while(true)
     {
+        
    
     }
 }
