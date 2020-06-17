@@ -4,8 +4,6 @@
 #include "eeprom.h"
 #include "TextLCD.h"
 
-Timer Fault_timer;
-
 TestMotor::TestMotor(PinName motorRelay, PinName motorCounter, PinName motorPauser, EEPROM* EEPROM_Handle, uint32_t baseEEPROMAddress, TextLCD_I2C * TextLCD_I2C_Handle, uint32_t baseRowAddress, uint32_t baseColumnAddress): 
 _motorRelayOut(new DigitalOut (motorRelay)), 
 _pdMotorCounter(new PinDetect (motorCounter)), 
@@ -26,6 +24,7 @@ _PdMotorPauser(new PinDetect (motorPauser))
     _flushCount = 0;
     _runtimeInMonths = 0;
     _previousRotationCount = 0;
+    LastSwitchTime = 0;
 
     _motorRelayOut->write(1);
 
@@ -45,9 +44,6 @@ _PdMotorPauser(new PinDetect (motorPauser))
     _pdMotorCounter->setSampleFrequency(20000);
     _PdMotorPauser->setSampleFrequency();
 
-    
-
-    //20000
 }
 
 void TestMotor::readEEPROMData(void)
@@ -71,7 +67,7 @@ void TestMotor::startMotor(void)
 {
     if (_motorCurrentState == SER)
     {
-        _motorCheckCount = 0;
+        _motorCheckCount = 0;   
         _motorCurrentState = RUN;
         _motorRelayOut->write(0);
     }
@@ -81,7 +77,8 @@ void TestMotor::startMotor(void)
 uint32_t TestMotor::stopMotor(void)
 {
     if (_motorCurrentState == RUN)
-    {
+    { 
+
         _motorCurrentState = SER;
         _motorRelayOut->write(1);
     }
@@ -107,7 +104,7 @@ float TestMotor::getFlushCount(void)
 
 float TestMotor::getMonthCount(void)
 {
-    _runtimeInMonths = ((float)_rotationCount)/ 4.0; //Actual number is 1456
+    _runtimeInMonths = ((float)_rotationCount)/ 1456.0; //Actual number is 1456
     return _runtimeInMonths;
 
 }
@@ -129,7 +126,8 @@ void TestMotor::setFaultState(bool faultyState)
     _faulty = faultyState;
     if(_faulty)
     {
-        _motorCurrentState = STOP;
+        _motorCurrentState = STOP;     
+        
     }
 }
 
@@ -140,17 +138,21 @@ bool TestMotor::getFaultState(void)
 
 void TestMotor::_motorCounterPressed (void)
 {
-    _rotationCount = _rotationCount + 1;
-    
+    _rotationCount = _rotationCount + 1; 
     _motorCheckCount = _motorCheckCount + 1;
+
     if(_motorCheckCount == 4)
     {
         _motorCheckCount = 0;
         _motorCurrentState = SER;
         _motorRelayOut->write(1);
     }
+    if(_motorCurrentState==RUN)
+    {
+        LastSwitchTime = faultTimer.read_ms();
+    }
 }
-    
+
 void TestMotor::_motorCounterReleased (void)
 {
     
@@ -160,6 +162,7 @@ void TestMotor::_motorPauserPressed(void)
 {
 
     _motorCurrentState = STOP;
+    _motorFaultCount = 0;
   
 }
     

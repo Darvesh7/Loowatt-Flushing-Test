@@ -6,14 +6,14 @@
 #include "eeprom.h"
 #include "TextLCD.h"
 
-
-
 typedef enum
 {
     STOP,
     RUN,
     SER
 } motorState_t;
+
+extern Timer faultTimer;
 
 class TestMotor
 {
@@ -40,10 +40,13 @@ class TestMotor
     void setFaultState(bool faultyState);
     bool getFaultState(void);
 
+    uint32_t LastSwitchTime;
+    
     private:
     int32_t _rotationCount;
     int32_t _previousRotationCount;
     int8_t _motorCheckCount;
+    int8_t _motorFaultCount;
 
     float _flushCount;
     float _runtimeInMonths;

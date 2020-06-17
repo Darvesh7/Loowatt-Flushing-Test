@@ -15,6 +15,9 @@
 #define OFF_MODE 3
 
 InterruptIn StartButton(BUTTON1);
+DigitalOut LED(LED2);
+
+Timer faultTimer;
 
 I2C i2c_lcd(SDA, SCL);
 //TextLCD_I2C lcd(&i2c_lcd, LCD_ADDR, TextLCD::LCD20x4);
@@ -22,19 +25,13 @@ I2C i2c_lcd(SDA, SCL);
 TestMotor* testMotors[MAX_TEST_MOTORS];
 EventQueue timedEvents, StartQueue, PauseQueue;
 
+
 int oddMotor = 0;
 int evenMotor = 1;
 
 EEPROM* ep; 
 
 Serial pc(USBTX, USBRX);
-
-volatile bool ispressed = false;
-void pressed(){ispressed = !ispressed;}
- 
-void handler(int c) {
-    if(ispressed == true){ printf("Param: %d\r\n", c); }
-}
 
 
 void setup(void)
@@ -79,14 +76,26 @@ void setup(void)
             testMotors[i]->printLCDdata(); 
         }
     }
-
-
 }
+
+float getAverageRotationLapse (uint32_t LastSwitchTime, uint32_t rotationMade)
+{
+    float AverageTimePerRotation = 999.99;
+    if (rotationMade > 0)
+    {
+        AverageTimePerRotation = ((float)LastSwitchTime/(float)rotationMade);
+    }
+
+    return AverageTimePerRotation;
+}
+
 
 void CheckMotor(void)
 {
     uint32_t rotationsMadeOddMotor = 0;
     uint32_t rotationsMadeEvenMotor = 0;
+    float averageDurationOfRotationOddMotor = 0.0;
+    float averageDurationOfRotationEvenMotor = 0.0;
 
     bool FaultOddMotor = false;
     bool FaultEvenMotor = false;
@@ -94,16 +103,17 @@ void CheckMotor(void)
     rotationsMadeOddMotor = testMotors[oddMotor]->stopMotor();
     rotationsMadeEvenMotor = testMotors[evenMotor]->stopMotor();
 
-    FaultOddMotor = rotationsMadeOddMotor < 4 || rotationsMadeOddMotor > 5;
-    FaultEvenMotor = rotationsMadeEvenMotor < 4 || rotationsMadeEvenMotor > 5; 
+    averageDurationOfRotationOddMotor = getAverageRotationLapse(testMotors[oddMotor]->LastSwitchTime, rotationsMadeOddMotor);
+    averageDurationOfRotationEvenMotor = getAverageRotationLapse(testMotors[evenMotor]->LastSwitchTime, rotationsMadeEvenMotor);
 
- 
+    FaultOddMotor = rotationsMadeOddMotor < 4 || averageDurationOfRotationOddMotor < 560.0;
+    FaultEvenMotor = rotationsMadeEvenMotor < 4 || averageDurationOfRotationEvenMotor < 560.0;
 
     testMotors[oddMotor]->setFaultState(FaultOddMotor);
     testMotors[evenMotor]->setFaultState(FaultEvenMotor);
 
-    pc.printf("Stop motor %d %s ", oddMotor, testMotors[oddMotor]->getFaultState()? " Faulty ": " OK ");
-    pc.printf("Stop motor %d %s \r\n", evenMotor, testMotors[evenMotor]->getFaultState()? " Faulty ": " OK ");
+    pc.printf("Stop motor %d %s %.2f ms", oddMotor, testMotors[oddMotor]->getFaultState()? " Faulty ": " OK ", averageDurationOfRotationOddMotor);
+    pc.printf("Stop motor %d %s %.2f ms\r\n", evenMotor, testMotors[evenMotor]->getFaultState()? " Faulty ": " OK ", averageDurationOfRotationOddMotor);
 
     testMotors[oddMotor]->printLCDdata(); 
     testMotors[evenMotor]->printLCDdata(); 
@@ -121,6 +131,8 @@ void CheckMotor(void)
     testMotors[oddMotor]->writeEEPROMData();
     testMotors[evenMotor]->writeEEPROMData();
 
+    faultTimer.reset();
+
     testMotors[oddMotor]->startMotor();
     testMotors[evenMotor]->startMotor();
 }
@@ -129,16 +141,15 @@ void serviceMotor(void)
 {
     pc.printf("%.2f\r\n", testMotors[oddMotor]->getMonthCount());//lcd
     pc.printf("%.2f\r\n", testMotors[evenMotor]->getMonthCount());//lcd
-    
-    
 }
 
-void startTest(void) {
-
+void startTest(void) 
+{
     timedEvents.call_every(3700, CheckMotor); //this 4 seconds is variable.
     timedEvents.call_every(500, serviceMotor);
     testMotors[oddMotor]->startMotor();
     testMotors[evenMotor]->startMotor();
+    faultTimer.start();
 
     timedEvents.dispatch();
 }
