@@ -161,9 +161,16 @@ void TestMotor::_motorCounterReleased (void)
 void TestMotor::_motorPauserPressed(void)
 {
 
-    _motorCurrentState = STOP;
-    _motorFaultCount = 0;
-  
+  if (_motorCurrentState == SER)
+    {
+        _motorCurrentState = STOP;
+        _motorFaultCount = 0;
+    } 
+    else if (_motorCurrentState == STOP) 
+    {
+        _motorCurrentState = SER;
+        _rotationCount = _previousRotationCount;
+    }
 }
     
 void TestMotor::_motorPauserReleased(void)
@@ -174,6 +181,6 @@ void TestMotor::_motorPauserReleased(void)
 void TestMotor::_motorPauserHeld(void)
 {
     _motorCurrentState = SER;
-    //_rotationCount = 0; //Delete eeprom of current motor
-    _rotationCount = _previousRotationCount; //Just pause the motor
+    _rotationCount = 0; //Delete eeprom of current motor
+    //_rotationCount = _previousRotationCount; //Just pause the motor
 }

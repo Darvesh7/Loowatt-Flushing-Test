@@ -106,8 +106,8 @@ void CheckMotor(void)
     averageDurationOfRotationOddMotor = getAverageRotationLapse(testMotors[oddMotor]->LastSwitchTime, rotationsMadeOddMotor);
     averageDurationOfRotationEvenMotor = getAverageRotationLapse(testMotors[evenMotor]->LastSwitchTime, rotationsMadeEvenMotor);
 
-    FaultOddMotor = rotationsMadeOddMotor < 4 || averageDurationOfRotationOddMotor < 560.0;
-    FaultEvenMotor = rotationsMadeEvenMotor < 4 || averageDurationOfRotationEvenMotor < 560.0;
+    FaultOddMotor = rotationsMadeOddMotor < 4 || averageDurationOfRotationOddMotor < 495.0;
+    FaultEvenMotor = rotationsMadeEvenMotor < 4 || averageDurationOfRotationEvenMotor < 495.0;
 
     testMotors[oddMotor]->setFaultState(FaultOddMotor);
     testMotors[evenMotor]->setFaultState(FaultEvenMotor);
@@ -145,7 +145,7 @@ void serviceMotor(void)
 
 void startTest(void) 
 {
-    timedEvents.call_every(3700, CheckMotor); //this 4 seconds is variable.
+    timedEvents.call_every(3600, CheckMotor); //this 4 seconds is variable.
     timedEvents.call_every(500, serviceMotor);
     testMotors[oddMotor]->startMotor();
     testMotors[evenMotor]->startMotor();
